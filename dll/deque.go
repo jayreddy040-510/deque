@@ -53,3 +53,22 @@ func (dll *Dll) PushLeft(val interface{}) {
 	}
 	dll.length++
 }
+
+func (dll *Dll) PopRight(numPop ...int) interface{} {
+	if len(numPop) == 0 {
+		if dll.length != 0 {
+			temp := dll.tail
+			dll.tail = dll.tail.prev
+			dll.length--
+			return temp.value
+		} else {
+			return nil
+		}
+	} else {
+		num := numPop[0]
+		if num > dll.length {
+			num = dll.length
+		}
+
+	}
+}

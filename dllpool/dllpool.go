@@ -1,4 +1,12 @@
-package dll
+package dllpool
+
+import "sync"
+
+var nodePool = &sync.Pool{
+	New: func() interface{} {
+		return &node{}
+	},
+}
 
 type node struct {
 	value interface{}
@@ -21,11 +29,10 @@ func (dll *Dll) Len() int {
 }
 
 func (dll *Dll) PushRight(val interface{}) {
-	node := &node{
-		value: val,
-		next:  nil,
-		prev:  dll.tail,
-	}
+	node := nodePool.Get().(*node)
+	node.value = val
+	node.next = nil
+	node.prev = dll.tail
 
 	if dll.length != 0 {
 		dll.tail.next = node
@@ -38,11 +45,10 @@ func (dll *Dll) PushRight(val interface{}) {
 }
 
 func (dll *Dll) PushLeft(val interface{}) {
-	node := &node{
-		value: val,
-		next:  dll.head,
-		prev:  nil,
-	}
+	node := nodePool.Get().(*node)
+	node.value = val
+	node.next = dll.head
+	node.prev = nil
 
 	if dll.length != 0 {
 		dll.head.prev = node
@@ -140,9 +146,16 @@ func (dll *Dll) PopLeft(numPop ...int) interface{} {
 
 
 func (dll *Dll) PeekHead() interface{} {
-	return dll.head.value
+	// nil check to avoid nil pointer dereference for empty dll
+	if dll.head != nil {
+		return dll.head.value
+	}
+	return nil
 }
 
 func (dll *Dll) PeekTail() interface{} {
-	return dll.tail.value
+	if dll.tail != nil {
+		return dll.tail.value
+	}
+	return nil
 }

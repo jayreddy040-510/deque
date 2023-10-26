@@ -55,70 +55,94 @@ func (dll *Dll) PushLeft(val interface{}) {
 }
 
 func (dll *Dll) PopRight(numPop ...int) interface{} {
-	if len(numPop) == 0 {
-		if dll.length != 0 {
-			temp := dll.tail
-			dll.tail = dll.tail.prev
-			if dll.tail != nil {
-				dll.tail.next = nil
-			} else {
-				dll.head = nil // list becomes empty after this pop
-			}
-			dll.length--
-			temp.prev = nil
-			return temp.value
-		}
+	if dll.tail == nil {
 		return nil
-	} else {
-		num := numPop[0]
-		poppedValues := make([]interface{}, 0, num)
-		if num > dll.length {
-			num = dll.length
-		}
-		for i := 0; i < num; i++ {
-			if dll.tail != nil {
-				poppedValues = append(poppedValues, dll.tail.value)
-				prev := dll.tail.prev
-				dll.tail.prev = nil
-				dll.tail = prev
-				if dll.tail != nil {
-					dll.tail.next = nil
-				} else {
-					dll.head = nil // list becomes empty
-				}
-				dll.length--
-			}
-		}
-		return poppedValues
 	}
+
+	num := 1
+	if len(numPop) > 0 {
+		num = numPop[0]
+	}
+	if num > dll.length {
+		num = dll.length
+	}
+
+	if num == 1 {
+		poppedValue := dll.tail.value
+		dll.tail = dll.tail.prev
+		if dll.tail != nil {
+			dll.tail.next = nil
+		} else {
+			dll.head = nil // list becomes empty after this pop
+		}
+		dll.length--
+		return poppedValue
+	}
+
+	poppedValues := make([]interface{}, num)
+	current := dll.tail
+	for i := 0; i < num; i++ {
+		poppedValues[i] = current.value // fill the array from most recently popped first (helps in using as stack)
+		current = current.prev
+	}
+	dll.tail = current
+	if dll.tail != nil {
+		dll.tail.next = nil
+	} else {
+		dll.head = nil // list becomes empty
+	}
+	dll.length -= num
+	return poppedValues
 }
 
+
 func (dll *Dll) PopLeft(numPop ...int) interface{} {
-	head := dll.head
-	if len(numPop) == 0 {
-		if head != nil {
-			dll.head = head.next
-			dll.length--
-			return head.value
-		} else {
-			return nil
-		}
-	} else {
-		num := numPop[0]
-		if num > dll.length {
-			num = dll.length
-		}
-		poppedValues := make([]interface{}, 0, num)
-		for i := 0; i < num; i++ {
-			if head != nil {
-				poppedValues = append(poppedValues, head.value)
-				head = head.next
-				head.prev = nil	
-			} else {
-				dll.tail = nil
-			}
-			dll.length--
-		}
-		return poppedValues
+	if dll.head == nil {
+		return nil
 	}
+
+	num := 1
+	if len(numPop) > 0 {
+		num = numPop[0]
+	}
+	if num > dll.length {
+		num = dll.length
+	}
+
+	if num == 1 {
+		// only popping one node
+		poppedValue := dll.head.value
+		dll.head = dll.head.next
+		if dll.head != nil {
+			dll.head.prev = nil
+		} else {
+			dll.tail = nil
+		}
+		dll.length--
+		return poppedValue
+	}
+
+	poppedValues := make([]interface{}, num)
+	current := dll.head
+	for i := 0; i < num; i++ {
+		poppedValues[i] = current.value
+		current = current.next
+	}
+	dll.head = current
+	if dll.head != nil {
+		dll.head.prev = nil
+	} else {
+		dll.tail = nil
+	}
+	dll.length -= num
+	return poppedValues
+}
+
+
+func (dll *Dll) PeekHead() interface{} {
+	return dll.head.value
+}
+
+func (dll *Dll) PeekTail() interface{} {
+	return dll.tail.value
 }

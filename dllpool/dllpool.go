@@ -2,8 +2,6 @@ package dllpool
 
 import (
 	"sync"
-
-	"golang.org/x/tools/go/analysis/passes/nilfunc"
 )
 
 var nodePool = &sync.Pool{

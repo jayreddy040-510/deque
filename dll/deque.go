@@ -125,7 +125,7 @@ func (dll *Dll) PopLeft(numPop ...int) interface{} {
 	poppedValues := make([]interface{}, num)
 	current := dll.head
 	for i := 0; i < num; i++ {
-		poppedValues[i] = current.value
+		poppedValues[i] = current.value // in case you want to implement deque as stack
 		current = current.next
 	}
 	dll.head = current

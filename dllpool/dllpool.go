@@ -98,9 +98,9 @@ func (dll *Dll) PopRight(numPop ...int) interface{} {
 	for i := 0; i < num; i++ {
 		poppedValues[i] = current.value // fill the array from most recently popped first (helps in using as stack)
 		temp := current
+		current = current.prev
 		temp.value = nil
 		temp.next = nil
-		current = current.prev
 		temp.prev = nil
 		nodePool.Put(temp)
 	}
@@ -130,8 +130,11 @@ func (dll *Dll) PopLeft(numPop ...int) interface{} {
 
 	if num == 1 {
 		// only popping one node
-		poppedValue := dll.head.value
+		temp := dll.head
+		poppedValue := temp.value
 		dll.head = dll.head.next
+		temp.next = nil
+		temp.value = nil
 		if dll.head != nil {
 			dll.head.prev = nil
 		} else {
@@ -145,7 +148,12 @@ func (dll *Dll) PopLeft(numPop ...int) interface{} {
 	current := dll.head
 	for i := 0; i < num; i++ {
 		poppedValues[i] = current.value // in case you want to implement deque as stack
+		temp := current
 		current = current.next
+		temp.value = nil
+		temp.prev = nil
+		temp.next = nil
+		nodePool.Put(temp)
 	}
 	dll.head = current
 	if dll.head != nil {

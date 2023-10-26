@@ -1,6 +1,10 @@
 package dllpool
 
-import "sync"
+import (
+	"sync"
+
+	"golang.org/x/tools/go/analysis/passes/nilfunc"
+)
 
 var nodePool = &sync.Pool{
 	New: func() interface{} {
@@ -74,7 +78,8 @@ func (dll *Dll) PopRight(numPop ...int) interface{} {
 	}
 
 	if num == 1 {
-		poppedValue := dll.tail.value
+		temp := dll.tail
+		poppedValue := temp.value
 		dll.tail = dll.tail.prev
 		if dll.tail != nil {
 			dll.tail.next = nil
@@ -82,6 +87,11 @@ func (dll *Dll) PopRight(numPop ...int) interface{} {
 			dll.head = nil // list becomes empty after this pop
 		}
 		dll.length--
+
+		temp.value = nil
+		temp.next = nil
+		temp.prev = nil
+		nodePool.Put(temp)
 		return poppedValue
 	}
 
@@ -89,7 +99,12 @@ func (dll *Dll) PopRight(numPop ...int) interface{} {
 	current := dll.tail
 	for i := 0; i < num; i++ {
 		poppedValues[i] = current.value // fill the array from most recently popped first (helps in using as stack)
+		temp := current
+		temp.value = nil
+		temp.next = nil
 		current = current.prev
+		temp.prev = nil
+		nodePool.Put(temp)
 	}
 	dll.tail = current
 	if dll.tail != nil {

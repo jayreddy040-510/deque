@@ -16,21 +16,21 @@ type node struct {
 	prev  *node
 }
 
-type Dll struct {
+type Deque struct {
 	head   *node
 	tail   *node
 	length int
 }
 
-func New() *Dll {
-	return &Dll{}
+func New() *Deque {
+	return &Deque{}
 }
 
-func (dll *Dll) Len() int {
+func (dll *Deque) Len() int {
 	return dll.length
 }
 
-func (dll *Dll) PushRight(val interface{}) {
+func (dll *Deque) PushRight(val interface{}) {
 	node := nodePool.Get().(*node)
 	node.value = val
 	node.next = nil
@@ -46,7 +46,7 @@ func (dll *Dll) PushRight(val interface{}) {
 	dll.length++
 }
 
-func (dll *Dll) PushLeft(val interface{}) {
+func (dll *Deque) PushLeft(val interface{}) {
 	node := nodePool.Get().(*node)
 	node.value = val
 	node.next = dll.head
@@ -62,7 +62,7 @@ func (dll *Dll) PushLeft(val interface{}) {
 	dll.length++
 }
 
-func (dll *Dll) PopRight(numPop ...int) interface{} {
+func (dll *Deque) PopRight(numPop ...int) interface{} {
 	if dll.tail == nil {
 		return nil
 	}
@@ -115,7 +115,7 @@ func (dll *Dll) PopRight(numPop ...int) interface{} {
 }
 
 
-func (dll *Dll) PopLeft(numPop ...int) interface{} {
+func (dll *Deque) PopLeft(numPop ...int) interface{} {
 	if dll.head == nil {
 		return nil
 	}
@@ -166,7 +166,7 @@ func (dll *Dll) PopLeft(numPop ...int) interface{} {
 }
 
 
-func (dll *Dll) PeekHead() interface{} {
+func (dll *Deque) PeekHead() interface{} {
 	// nil check to avoid nil pointer dereference for empty dll
 	if dll.head != nil {
 		return dll.head.value
@@ -174,7 +174,7 @@ func (dll *Dll) PeekHead() interface{} {
 	return nil
 }
 
-func (dll *Dll) PeekTail() interface{} {
+func (dll *Deque) PeekTail() interface{} {
 	if dll.tail != nil {
 		return dll.tail.value
 	}

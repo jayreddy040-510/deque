@@ -30,7 +30,7 @@ func (dll *Deque) Len() int {
 	return dll.length
 }
 
-func (dll *Deque) PushRight(val interface{}) {
+func (dll *Deque) PushBack(val interface{}) {
 	node := nodePool.Get().(*node)
 	node.value = val
 	node.next = nil
@@ -46,7 +46,7 @@ func (dll *Deque) PushRight(val interface{}) {
 	dll.length++
 }
 
-func (dll *Deque) PushLeft(val interface{}) {
+func (dll *Deque) PushFront(val interface{}) {
 	node := nodePool.Get().(*node)
 	node.value = val
 	node.next = dll.head
@@ -62,7 +62,7 @@ func (dll *Deque) PushLeft(val interface{}) {
 	dll.length++
 }
 
-func (dll *Deque) PopRight(numPop ...int) interface{} {
+func (dll *Deque) PopBack(numPop ...int) interface{} {
 	if dll.tail == nil {
 		return nil
 	}
@@ -115,7 +115,7 @@ func (dll *Deque) PopRight(numPop ...int) interface{} {
 }
 
 
-func (dll *Deque) PopLeft(numPop ...int) interface{} {
+func (dll *Deque) PopFront(numPop ...int) interface{} {
 	if dll.head == nil {
 		return nil
 	}

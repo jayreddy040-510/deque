@@ -4,7 +4,8 @@ type Deque struct {
     data []interface{}
     front int
     back int
-    size int
+    length int
+    capacity int
 }
 
 func New(capacity int) *Deque {
@@ -12,20 +13,32 @@ func New(capacity int) *Deque {
         data: make([]interface{}, capacity),
         front: 0,
         back: 0,
-        size: capacity,
+        length: 0,
+        capacity: capacity,
     }
 }
 
 func (d *Deque) resize() {
-    newSize := 2 * d.size 
+    newCapacity := 2 * d.capacity 
 
-    newData := make([]interface{}, newSize)
+    newData := make([]interface{}, newCapacity)
+    pos := 0
 
+    for i := 0; i < d.length; i++ {
+        newData[pos] = d.data[d.front]
+        d.front = (d.front + 1) % d.capacity
+        pos++
+    }
 
+    d.front = 0
+    d.back = pos
+    d.data = newData
+    d.capacity = newCapacity
 }
 
-func (d *Deque) PushRightOne(v interface{}) {
-    if len(d.data) >= d.size {
+
+func (d *Deque) PushBackOne(v interface{}) {
+    if d.length >= d.capacity {
         d.resize()
     }
 }

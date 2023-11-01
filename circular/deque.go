@@ -41,4 +41,8 @@ func (d *Deque) PushBackOne(v interface{}) {
     if d.length >= d.capacity {
         d.resize()
     }
+
+    pos := (d.back + 1) % d.length
+    d.data[pos] = v
+    d.length++
 }

@@ -68,3 +68,23 @@ func (d *Deque) PopBackOne(v interface{}) interface{} {
     d.length--
 	return popped
 }
+
+func (d *Deque) PushFrontOne(v interface{}) {
+    if d.length >= d.capacity {
+        d.resize()
+    }
+
+    if d.length != 0 {
+        if d.front != 0 {
+            d.front-- 
+        } else {
+            d.front = d.capacity - 1
+        }
+    } else {
+        d.front, d.back = 0, 0
+    }
+
+    d.data[d.front] = v
+    d.length++
+}
+

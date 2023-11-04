@@ -49,13 +49,13 @@ func (d *Deque) PushBackOne(v interface{}) {
 	d.length++
 }
 
-func (d *Deque) PopBackOne(v interface{}) interface{} {
+func (d *Deque) PopBackOne() interface{} {
 	if d.length == 0 {
 		return nil
 	}
 
 	popped := d.data[d.back]
-    d.data[d.back] = nil
+	d.data[d.back] = nil
 	if d.length != 1 {
 		if d.back != 0 {
 			d.back--
@@ -65,26 +65,59 @@ func (d *Deque) PopBackOne(v interface{}) interface{} {
 	} else {
 		d.back, d.front = 0, 0
 	}
-    d.length--
+	d.length--
 	return popped
 }
 
 func (d *Deque) PushFrontOne(v interface{}) {
-    if d.length >= d.capacity {
-        d.resize()
-    }
+	if d.length >= d.capacity {
+		d.resize()
+	}
 
-    if d.length != 0 {
-        if d.front != 0 {
-            d.front-- 
-        } else {
-            d.front = d.capacity - 1
-        }
-    } else {
-        d.front, d.back = 0, 0
-    }
+	if d.length != 0 {
+		if d.front != 0 {
+			d.front--
+		} else {
+			d.front = d.capacity - 1
+		}
+	} else {
+		d.front, d.back = 0, 0
+	}
 
-    d.data[d.front] = v
-    d.length++
+	d.data[d.front] = v
+	d.length++
 }
 
+func (d *Deque) PopFrontOne() interface{} {
+	if d.length == 0 {
+		return nil
+	}
+
+	popped := d.data[d.front]
+	d.data[d.front] = nil
+
+	if d.length != 1 {
+		d.front = (d.front + 1) % d.capacity
+	} else {
+		d.front, d.back = 0, 0
+	}
+
+	d.length--
+	return popped
+}
+
+func (d *Deque) PeekHead() interface{} {
+	if d.length == 0 {
+		return nil
+	} else {
+		return d.data[d.front]
+	}
+}
+
+func (d *Deque) PeekTail() interface{} {
+	if d.length == 0 {
+		return nil
+	} else {
+		return d.data[d.back]
+	}
+}

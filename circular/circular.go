@@ -49,6 +49,20 @@ func (d *Deque) PushBackOne(v interface{}) {
 	d.length++
 }
 
+func (d *Deque) PushBackBulk(values ...interface{}) {
+	for _, v := range values {
+		if d.length >= d.capacity {
+			d.resize()
+		}
+		if d.length != 0 {
+			d.back = (d.back + 1) % d.capacity
+		}
+
+		d.data[d.back] = v
+		d.length++
+	}
+}
+
 func (d *Deque) PopBackOne() interface{} {
 	if d.length == 0 {
 		return nil

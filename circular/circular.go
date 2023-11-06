@@ -18,9 +18,13 @@ func New(capacity int) *Deque {
 	}
 }
 
-func (d *Deque) resize() {
-	newCapacity := 2 * d.capacity
-
+func (d *Deque) resize(size ...int) {
+	var newCapacity int
+	if len(size) == 0 {
+		newCapacity = 2 * d.capacity
+	} else {
+		newCapacity = size[0]
+	}
 	newData := make([]interface{}, newCapacity)
 	pos := 0
 

@@ -78,15 +78,30 @@ func (d *Deque) PopBackOne() interface{} {
 	popped := d.data[d.back]
 	d.data[d.back] = nil
 	if d.length != 1 {
-		if d.back != 0 {
-			d.back--
-		} else {
-			d.back = d.capacity - 1
-		}
+		d.back = (d.back - 1 + d.capacity) % d.capacity
 	} else {
 		d.back, d.front = 0, 0
 	}
 	d.length--
+	return popped
+}
+
+func (d *Deque) PopBackBulk(n int) []interface{} {
+	if n > d.length {
+		n = d.length
+	}
+
+	popped := make([]interface{}, n)
+
+	for i :=0; i < n; i++ {
+		popped[i] = d.data[d.back]
+		d.data[d.back] = nil
+		d.back = (d.back - 1 + d.capacity) % d.capacity
+	}
+	d.length -= n
+	if d.length == 0 || d.length == 1 {
+		d.front, d.back = 0, 0
+	}
 	return popped
 }
 

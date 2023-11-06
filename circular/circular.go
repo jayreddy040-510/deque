@@ -99,7 +99,7 @@ func (d *Deque) PopBackBulk(n int) []interface{} {
 		d.back = (d.back - 1 + d.capacity) % d.capacity
 	}
 	d.length -= n
-	if d.length == 0 || d.length == 1 {
+	if d.length == 0 {
 		d.front, d.back = 0, 0
 	}
 	return popped

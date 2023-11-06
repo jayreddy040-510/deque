@@ -20,11 +20,13 @@ func New(capacity int) *Deque {
 
 func (d *Deque) resize(size ...int) {
 	var newCapacity int
+
 	if len(size) == 0 {
 		newCapacity = 2 * d.capacity
 	} else {
 		newCapacity = size[0]
 	}
+
 	newData := make([]interface{}, newCapacity)
 	pos := 0
 
@@ -53,18 +55,19 @@ func (d *Deque) PushBackOne(v interface{}) {
 	d.length++
 }
 
-func (d *Deque) PushBackBulk(values ...interface{}) {
+func (d *Deque) PushBackBulk(values []interface{}) {
+	if finalLength := d.length + len(values); finalLength > d.capacity {
+		d.resize(2 * finalLength)
+	}
+
 	for _, v := range values {
-		if d.length >= d.capacity {
-			d.resize()
-		}
 		if d.length != 0 {
 			d.back = (d.back + 1) % d.capacity
 		}
 
 		d.data[d.back] = v
-		d.length++
 	}
+	d.length += len(values)
 }
 
 func (d *Deque) PopBackOne() interface{} {

@@ -3,7 +3,7 @@ package circular
 import "testing"
 
 func BenchmarkCircularPushPop(b *testing.B) {
-	circular := New(1)
+	circular, _ := New()
 	for i := 0; i < b.N; i++ {
 		circular.PushBackOne(1)
 		circular.PushBackOne(2)

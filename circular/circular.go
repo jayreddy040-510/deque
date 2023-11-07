@@ -1,6 +1,9 @@
 package circular
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type DequeConfig struct {
 	initialCapacity int
@@ -9,6 +12,32 @@ type DequeConfig struct {
 	shrinkFactor    float64 // factor by which underlying array shrinks when length:capacity <= shrinkThreshold
 	growThreshold   float64 // ratio of deque length:capacity that triggers underlying array growing logic
 	growFactor      float64 // factor by which deque grows when length:capacity >= growThreshold
+}
+
+type validationError struct {
+	errors []string
+}
+
+func (v *validationError) addError(s string) {
+	v.errors = append(v.errors, s)
+}
+
+func (v *validationError) hasErrors() bool {
+	return len(v.errors) > 0
+}
+
+func (v *validationError) createErrorMsg() string {
+	var b strings.Builder
+	b.WriteString("your deque config returned the following validation errors:\n")
+	for _, err := range v.errors {
+		b.WriteString(fmt.Sprintf("\t%v\n", err))
+	}
+	return b.String()
+}
+
+func (dc *DequeConfig) validate() error {
+	validationError := &validationError{}
+	// if 
 }
 
 type Deque struct {
@@ -40,12 +69,8 @@ func New(config ...*DequeConfig) (*Deque, error) {
 			config:   defaultConfig,
 		}, nil
 	} else {
-		if config[0].initialCapacity > config[0].minCapacity {
-			return nil, fmt.Errorf(
-				"initial capacity (%v) can not be larger than minimum capacity (%v)",
-				config[0].initialCapacity,
-				config[0].minCapacity,
-			)
+		if err := config[0].validate(); err != nil {
+			return nil, err
 		}
 		return &Deque{
 			data:     make([]interface{}, config[0].initialCapacity),

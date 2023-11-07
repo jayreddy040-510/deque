@@ -36,8 +36,42 @@ func (v *validationError) createErrorMsg() string {
 }
 
 func (dc *DequeConfig) validate() error {
-	validationError := &validationError{}
-	// if 
+	ve := &validationError{}
+	initialCap := dc.initialCapacity
+	minCap := dc.minCapacity
+
+	// initial capacity > 0
+	if initialCap < 1 {
+		ve.addError(fmt.Sprintf(
+			"initial capacity: %d must be greater than 0",
+			initialCap,
+		))
+	}
+
+	// min capacity > 0
+	if minCap < 1 {
+		ve.addError(fmt.Sprintf(
+			"initial capacity: %d must be greater than 0",
+			minCap,
+		))
+	}
+
+	// initial capacity < min capacity
+	if initialCap < minCap {
+		ve.addError(fmt.Sprintf(
+			"initial capacity: %d cannot be smaller than min capacity: %d",
+			initialCap,
+			minCap,	
+		))
+	}
+
+	// if growThreshold
+
+	if ve.hasErrors() {
+		return fmt.Errorf("%v", ve.createErrorMsg())
+	} else {
+		return nil
+	}
 }
 
 type Deque struct {

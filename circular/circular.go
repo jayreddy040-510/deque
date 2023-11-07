@@ -1,16 +1,14 @@
 package circular
 
-type number interface {
-	int | float64 | float32
-}
+import "fmt"
 
 type DequeConfig struct {
 	initialCapacity int
-	minCapacity		int
-	shrinkThreshold	float64		// ratio of deque length:capacity that triggers dealloc of excess array mem 
-	shrinkFactor	float64		// factor by which underlying array shrinks when length:capacity <= shrinkThreshold
-	growThreshold	float64		// ratio of deque length:capacity that triggers underlying array growing logic
-	growFactor		float64		// factor by which deque grows when length:capacity >= growThreshold
+	minCapacity     int
+	shrinkThreshold float64 // ratio of deque length:capacity that triggers dealloc of excess array mem
+	shrinkFactor    float64 // factor by which underlying array shrinks when length:capacity <= shrinkThreshold
+	growThreshold   float64 // ratio of deque length:capacity that triggers underlying array growing logic
+	growFactor      float64 // factor by which deque grows when length:capacity >= growThreshold
 }
 
 type Deque struct {
@@ -19,19 +17,19 @@ type Deque struct {
 	back     int
 	length   int
 	capacity int
-	config	 *DequeConfig
+	config   *DequeConfig
 }
 
 var defaultConfig = &DequeConfig{
 	initialCapacity: 10,
-	minCapacity: 10,
+	minCapacity:     10,
 	shrinkThreshold: 0.25,
-	shrinkFactor: 0.5,
-	growThreshold: 1.0,
-	growFactor: 2.0,
+	shrinkFactor:    0.5,
+	growThreshold:   1.0,
+	growFactor:      2.0,
 }
 
-func New(config ...*DequeConfig) *Deque {
+func New(config ...*DequeConfig) (*Deque, error) {
 	if len(config) == 0 {
 		return &Deque{
 			data:     make([]interface{}, defaultConfig.initialCapacity),
@@ -39,15 +37,24 @@ func New(config ...*DequeConfig) *Deque {
 			back:     0,
 			length:   0,
 			capacity: defaultConfig.initialCapacity,
-		}
+			config:   defaultConfig,
+		}, nil
 	} else {
+		if config[0].initialCapacity > config[0].minCapacity {
+			return nil, fmt.Errorf(
+				"initial capacity (%v) can not be larger than minimum capacity (%v)",
+				config[0].initialCapacity,
+				config[0].minCapacity,
+			)
+		}
 		return &Deque{
 			data:     make([]interface{}, config[0].initialCapacity),
 			front:    0,
 			back:     0,
 			length:   0,
 			capacity: config[0].initialCapacity,
-		}
+			config:   config[0],
+		}, nil
 	}
 }
 
@@ -64,7 +71,7 @@ func (d *Deque) resize(size ...int) {
 	pos := 0
 
 	for i := 0; i < d.length; i++ {
-		newData[pos] = d.data[(d.front + i) % d.capacity]
+		newData[pos] = d.data[(d.front+i)%d.capacity]
 		pos++
 	}
 
@@ -135,8 +142,14 @@ func (d *Deque) PopBackBulk(n int) []interface{} {
 		d.front, d.back = 0, 0
 	}
 
-	if float64(d.length) / float64(d.capacity) <= d.config.shrinkThreshold {
-		d.resize(int(d.config.shrinkFactor * float64(d.capacity)))
+	// inline shrinking logic: if ratio of length:capacity < shrinkThreshold set in config struct &&
+	// if deque capacity > minimum capacity, resize to either min capacity, or shrinkFactor * deque capacity
+	if float64(d.length)/float64(d.capacity) <= d.config.shrinkThreshold && d.capacity > d.config.minCapacity {
+		if shrunkCapacity := int(d.config.shrinkFactor * float64(d.capacity)); shrunkCapacity > d.config.minCapacity {
+			d.resize(shrunkCapacity)
+		} else {
+			d.resize(d.config.minCapacity)
+		}
 	}
 	return popped
 }

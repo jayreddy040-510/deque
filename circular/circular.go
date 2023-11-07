@@ -1,20 +1,53 @@
 package circular
 
+type number interface {
+	int | float64 | float32
+}
+
+type DequeConfig struct {
+	initialCapacity int
+	minCapacity		int
+	shrinkThreshold	float64		// ratio of deque length:capacity that triggers dealloc of excess array mem 
+	shrinkFactor	float64		// factor by which underlying array shrinks when length:capacity <= shrinkThreshold
+	growThreshold	float64		// ratio of deque length:capacity that triggers underlying array growing logic
+	growFactor		float64		// factor by which deque grows when length:capacity >= growThreshold
+}
+
 type Deque struct {
 	data     []interface{}
 	front    int
 	back     int
 	length   int
 	capacity int
+	config	 *DequeConfig
 }
 
-func New(capacity int) *Deque {
-	return &Deque{
-		data:     make([]interface{}, capacity),
-		front:    0,
-		back:     0,
-		length:   0,
-		capacity: capacity,
+var defaultConfig = &DequeConfig{
+	initialCapacity: 10,
+	minCapacity: 10,
+	shrinkThreshold: 0.25,
+	shrinkFactor: 0.5,
+	growThreshold: 1.0,
+	growFactor: 2.0,
+}
+
+func New(config ...*DequeConfig) *Deque {
+	if len(config) == 0 {
+		return &Deque{
+			data:     make([]interface{}, defaultConfig.initialCapacity),
+			front:    0,
+			back:     0,
+			length:   0,
+			capacity: defaultConfig.initialCapacity,
+		}
+	} else {
+		return &Deque{
+			data:     make([]interface{}, config[0].initialCapacity),
+			front:    0,
+			back:     0,
+			length:   0,
+			capacity: config[0].initialCapacity,
+		}
 	}
 }
 
@@ -31,8 +64,7 @@ func (d *Deque) resize(size ...int) {
 	pos := 0
 
 	for i := 0; i < d.length; i++ {
-		newData[pos] = d.data[d.front]
-		d.front = (d.front + 1) % d.capacity
+		newData[pos] = d.data[(d.front + i) % d.capacity]
 		pos++
 	}
 
@@ -93,7 +125,7 @@ func (d *Deque) PopBackBulk(n int) []interface{} {
 
 	popped := make([]interface{}, n)
 
-	for i :=0; i < n; i++ {
+	for i := 0; i < n; i++ {
 		popped[i] = d.data[d.back]
 		d.data[d.back] = nil
 		d.back = (d.back - 1 + d.capacity) % d.capacity
@@ -101,6 +133,10 @@ func (d *Deque) PopBackBulk(n int) []interface{} {
 	d.length -= n
 	if d.length == 0 {
 		d.front, d.back = 0, 0
+	}
+
+	if float64(d.length) / float64(d.capacity) <= d.config.shrinkThreshold {
+		d.resize(int(d.config.shrinkFactor * float64(d.capacity)))
 	}
 	return popped
 }

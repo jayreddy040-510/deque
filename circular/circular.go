@@ -39,6 +39,10 @@ func (dc *DequeConfig) validate() error {
 	ve := &validationError{}
 	initialCap := dc.initialCapacity
 	minCap := dc.minCapacity
+	shrinkThreshold := dc.shrinkThreshold
+	shrinkFactor := dc.shrinkFactor
+	growThreshold := dc.growThreshold
+	growFactor := dc.growFactor
 
 	// initial capacity > 0
 	if initialCap < 1 {
@@ -61,11 +65,36 @@ func (dc *DequeConfig) validate() error {
 		ve.addError(fmt.Sprintf(
 			"initial capacity: %d cannot be smaller than min capacity: %d",
 			initialCap,
-			minCap,	
+			minCap,
 		))
 	}
 
-	// if growThreshold
+	// 0 < growThreshold < 1
+	if growThreshold <= 0 || growThreshold >= 1 {
+		ve.addError(fmt.Sprintf(
+			"grow threshold: %v must be between 0 and 1 exclusive",
+			growThreshold,
+		))
+	}
+
+	// 0 < shrinkThreshold < 1
+	if shrinkThreshold <= 0 || shrinkThreshold >= 1 {
+		ve.addError(fmt.Sprintf(
+			"shrink threshold: %v must be between 0 and 1 exclusive",
+			shrinkThreshold,
+		))
+	}
+
+	// growThreshold > shrinkThreshold
+	if growThreshold <= shrinkThreshold {
+		ve.addError(fmt.Sprintf(
+			"grow threshold: %v must be greater than shrink threshold: %v",
+			growThreshold,
+			shrinkThreshold,
+		))
+	}
+
+	// growFactor > 1
 
 	if ve.hasErrors() {
 		return fmt.Errorf("%v", ve.createErrorMsg())

@@ -2,6 +2,7 @@ package circular
 
 import (
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -182,7 +183,7 @@ func (d *Deque) resize(size ...int) {
 	var newCapacity int
 
 	if len(size) == 0 {
-		newCapacity = int(d.config.growFactor * float64(d.capacity))
+		newCapacity = int(math.Round(d.config.growFactor * float64(d.capacity)))
 	} else {
 		newCapacity = size[0]
 	}
@@ -202,7 +203,7 @@ func (d *Deque) resize(size ...int) {
 }
 
 func (d *Deque) PushBackOne(v interface{}) {
-	if d.length >= d.capacity {
+	if d.length >= int(math.Round(d.config.growFactor * float64(d.capacity))) {
 		d.resize()
 	}
 
@@ -215,8 +216,11 @@ func (d *Deque) PushBackOne(v interface{}) {
 }
 
 func (d *Deque) PushBackBulk(values []interface{}) {
-	if finalLength := d.length + len(values); finalLength > d.capacity {
-		d.resize(2 * finalLength)
+	growFactor := d.config.growFactor
+	if finalLength := d.length + len(values); finalLength > int(math.Round(growFactor * float64(d.capacity))) {
+		// im ashamed, lol - is there a better way to multiply a float into an int,
+		// preserve the data by rounding and then result in an int? need int for capacity in resize()
+		d.resize(int(math.Round(growFactor * float64(finalLength)))) 
 	}
 
 	for _, v := range values {
@@ -265,7 +269,7 @@ func (d *Deque) PopBackBulk(n int) []interface{} {
 	// inline shrinking logic: if ratio of length:capacity < shrinkThreshold set in config struct &&
 	// if deque capacity > minimum capacity, resize to either min capacity, or shrinkFactor * deque capacity
 	if float64(d.length)/float64(d.capacity) <= d.config.shrinkThreshold && d.capacity > d.config.minCapacity {
-		if shrunkCapacity := int(d.config.shrinkFactor * float64(d.capacity)); shrunkCapacity > d.config.minCapacity {
+		if shrunkCapacity := int(math.Round(d.config.shrinkFactor * float64(d.capacity))); shrunkCapacity > d.config.minCapacity {
 			d.resize(shrunkCapacity)
 		} else {
 			d.resize(d.config.minCapacity)
@@ -275,7 +279,7 @@ func (d *Deque) PopBackBulk(n int) []interface{} {
 }
 
 func (d *Deque) PushFrontOne(v interface{}) {
-	if d.length >= d.capacity {
+	if d.length >= int(math.Round(d.config.growFactor * float64(d.capacity))) {
 		d.resize()
 	}
 
@@ -293,6 +297,10 @@ func (d *Deque) PushFrontOne(v interface{}) {
 	d.length++
 }
 
+func (d *Deque) PushFrontBulk(values []interface{}) {
+	
+}
+
 func (d *Deque) PopFrontOne() interface{} {
 	if d.length == 0 {
 		return nil
@@ -308,6 +316,15 @@ func (d *Deque) PopFrontOne() interface{} {
 	}
 
 	d.length--
+
+	if float64(d.length)/float64(d.capacity) <= d.config.shrinkThreshold && d.capacity > d.config.minCapacity {
+		if shrunkCapacity := int(math.Round(d.config.shrinkFactor * float64(d.capacity))); shrunkCapacity > d.config.minCapacity {
+			d.resize(shrunkCapacity)
+		} else {
+			d.resize(d.config.minCapacity)
+		}
+	}
+
 	return popped
 }
 

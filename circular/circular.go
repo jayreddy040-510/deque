@@ -95,6 +95,38 @@ func (dc *DequeConfig) validate() error {
 	}
 
 	// growFactor > 1
+	if growFactor <= 1 {
+		ve.addError(fmt.Sprintf(
+			"growFactor: %v must be greater than 1",
+			growFactor,
+		))
+	}
+
+	// shrinkFactor < 1
+	if shrinkFactor >= 1 {
+		ve.addError(fmt.Sprintf(
+			"shrinkFactor: %v must be lesser than 1",
+			shrinkFactor,
+		))
+	}
+
+	// growFactor > growThreshold
+	if growFactor <= growThreshold {
+		ve.addError(fmt.Sprintf(
+			"growFactor: %v must be greater than growThreshold: %v",
+			growFactor,
+			growThreshold,
+		))
+	}
+
+	// shrinkFactor < shrinkThreshold
+	if shrinkFactor >= shrinkThreshold {
+		ve.addError(fmt.Sprintf(
+			"shrinkFactor: %v must be lesser than shrinkThreshold: %v",
+			shrinkFactor,
+			shrinkThreshold,
+		))
+	}
 
 	if ve.hasErrors() {
 		return fmt.Errorf("%v", ve.createErrorMsg())
@@ -150,7 +182,7 @@ func (d *Deque) resize(size ...int) {
 	var newCapacity int
 
 	if len(size) == 0 {
-		newCapacity = 2 * d.capacity
+		newCapacity = int(d.config.growFactor * float64(d.capacity))
 	} else {
 		newCapacity = size[0]
 	}

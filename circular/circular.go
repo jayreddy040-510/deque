@@ -283,11 +283,7 @@ func (d *Deque) PushFrontOne(v interface{}) {
 	}
 
 	if d.length != 0 {
-		if d.front != 0 {
-			d.front--
-		} else {
-			d.front = d.capacity - 1
-		}
+		d.front = (d.front - 1 + d.capacity) % d.capacity
 	} else {
 		d.front, d.back = 0, 0
 	}
@@ -300,6 +296,13 @@ func (d *Deque) PushFrontBulk(values []interface{}) {
 	if finalLength := len(values) + d.length; finalLength > int(math.Round(d.config.growThreshold * float64(d.capacity))) {
 		d.resize(int(math.Round(d.config.growFactor * float64(finalLength))))
 	}
+
+	for i := 0; i < len(values); i++ {
+		d.front = (d.front - 1 + d.capacity) % d.capacity
+		d.data[d.front] = values[i]
+	}
+
+	d.length += len(values)
 }
 
 func (d *Deque) PopFrontOne() interface{} {

@@ -203,7 +203,7 @@ func (d *Deque) resize(size ...int) {
 }
 
 func (d *Deque) PushBackOne(v interface{}) {
-	if d.length >= int(math.Round(d.config.growFactor * float64(d.capacity))) {
+	if d.length >= int(math.Round(d.config.growFactor*float64(d.capacity))) {
 		d.resize()
 	}
 
@@ -216,10 +216,10 @@ func (d *Deque) PushBackOne(v interface{}) {
 }
 
 func (d *Deque) PushBackBulk(values []interface{}) {
-	if finalLength := d.length + len(values); finalLength > int(math.Round(d.config.growThreshold * float64(d.capacity))) {
+	if finalLength := d.length + len(values); finalLength > int(math.Round(d.config.growThreshold*float64(d.capacity))) {
 		// im ashamed, lol - is there a better way to multiply a float into an int,
 		// preserve the data by rounding and then result in an int? need int for capacity in resize()
-		d.resize(int(math.Round(d.config.growFactor * float64(finalLength)))) 
+		d.resize(int(math.Round(d.config.growFactor * float64(finalLength))))
 	}
 
 	for _, v := range values {
@@ -278,7 +278,7 @@ func (d *Deque) PopBackBulk(n int) []interface{} {
 }
 
 func (d *Deque) PushFrontOne(v interface{}) {
-	if d.length >= int(math.Round(d.config.growFactor * float64(d.capacity))) {
+	if d.length >= int(math.Round(d.config.growFactor*float64(d.capacity))) {
 		d.resize()
 	}
 
@@ -293,7 +293,7 @@ func (d *Deque) PushFrontOne(v interface{}) {
 }
 
 func (d *Deque) PushFrontBulk(values []interface{}) {
-	if finalLength := len(values) + d.length; finalLength > int(math.Round(d.config.growThreshold * float64(d.capacity))) {
+	if finalLength := len(values) + d.length; finalLength > int(math.Round(d.config.growThreshold*float64(d.capacity))) {
 		d.resize(int(math.Round(d.config.growFactor * float64(finalLength))))
 	}
 
@@ -330,6 +330,18 @@ func (d *Deque) PopFrontOne() interface{} {
 	}
 
 	return popped
+}
+
+func (d *Deque) PopFrontBulk(num int) interface{} {
+	if d.length == 0 {
+		return nil
+	}
+	if num > d.length {
+		num = d.length
+	}
+	var poppedValues int
+
+	return poppedValues
 }
 
 func (d *Deque) PeekHead() interface{} {

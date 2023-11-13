@@ -332,16 +332,35 @@ func (d *Deque) PopFrontOne() interface{} {
 	return popped
 }
 
-func (d *Deque) PopFrontBulk(num int) interface{} {
-	if d.length == 0 {
+func (d *Deque) PopFrontBulk(n int) []interface{} {
+	if d.length <= 0 {
 		return nil
 	}
-	if num > d.length {
-		num = d.length
+	if n > d.length {
+		n = d.length
 	}
-	var poppedValues int
 
-	return poppedValues
+	popped := make([]interface{}, n)
+	for i := 0; i < n; i++ {
+		popped[i] = d.data[d.front]
+		d.data[d.front] = nil
+		d.front = (d.front + 1) % d.capacity
+	}
+
+	d.length -= n
+	if d.length == 0 {
+		d.front, d.back = 0, 0
+	}
+
+	if float64(d.length)/float64(d.capacity) <= d.config.shrinkThreshold && d.capacity > d.config.minCapacity {
+		if shrunkCapacity := int(math.Round(d.config.shrinkFactor * float64(d.capacity))); shrunkCapacity > d.config.minCapacity {
+			d.resize(shrunkCapacity)
+		} else {
+			d.resize(d.config.minCapacity)
+		}
+	}
+
+	return popped
 }
 
 func (d *Deque) PeekHead() interface{} {

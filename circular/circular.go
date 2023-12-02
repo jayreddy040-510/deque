@@ -227,9 +227,9 @@ func (d *Deque) PushBackBulk(values []interface{}) {
 			d.back = (d.back + 1) % d.capacity
 		}
 
+		d.length += 1
 		d.data[d.back] = v
 	}
-	d.length += len(values)
 }
 
 func (d *Deque) PopBackOne() interface{} {
@@ -248,9 +248,9 @@ func (d *Deque) PopBackOne() interface{} {
 	return popped
 }
 
-func (d *Deque) PopBackBulk(n int) []interface{} {
+func (d *Deque) PopBackBulk(n int) ([]interface{}, error) {
 	if n > d.length {
-		n = d.length
+		return nil, fmt.Errorf("tried to pop %d elements, only %d elements in deque", n, d.length)
 	}
 
 	popped := make([]interface{}, n)

@@ -182,7 +182,7 @@ func New(config ...*DequeConfig) (*Deque, error) {
 func (d *Deque) resize(size ...int) {
 	var newCapacity int
 
-	if len(size) == 0 {
+	if len(size) == 0 { // default behavior is grow
 		newCapacity = int(math.Round(d.config.growFactor * float64(d.capacity)))
 	} else {
 		newCapacity = size[0]

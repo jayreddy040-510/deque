@@ -232,9 +232,9 @@ func (d *Deque) PushBackBulk(values []interface{}) {
 	}
 }
 
-func (d *Deque) PopBackOne() interface{} {
+func (d *Deque) PopBackOne() (interface{}, error) {
 	if d.length == 0 {
-		return nil
+		return nil, fmt.Errorf("length is %d, can not pop", d.length)
 	}
 
 	popped := d.data[d.back]
@@ -245,7 +245,7 @@ func (d *Deque) PopBackOne() interface{} {
 		d.back, d.front = 0, 0
 	}
 	d.length--
-	return popped
+	return popped, nil
 }
 
 func (d *Deque) PopBackBulk(n int) ([]interface{}, error) {
@@ -274,7 +274,7 @@ func (d *Deque) PopBackBulk(n int) ([]interface{}, error) {
 			d.resize(d.config.minCapacity)
 		}
 	}
-	return popped
+	return popped, nil
 }
 
 func (d *Deque) PushFrontOne(v interface{}) {
